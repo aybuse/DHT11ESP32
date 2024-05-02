@@ -3,27 +3,19 @@
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 
-// Replace with your network credentials
 const char* ssid = "AndroidAP";
 const char* password = "99992222.";
 
-#define DHTPIN 27  // Digital pin connected to the DHT sensor
+#define DHTPIN 27 
 
-// Uncomment the type of sensor in use:
-#define DHTTYPE DHT11  // DHT 11
+#define DHTTYPE DHT11 
 DHT dht(DHTPIN, DHTTYPE);
 
-// Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
 String readDHTTemperature() {
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
-  // Read temperature as Celsius (the default)
   float t = dht.readTemperature();
-  // Read temperature as Fahrenheit (isFahrenheit = true)
-  //float t = dht.readTemperature(true);
-  // Check if any reads failed and exit early (to try again).
-  if (isnan(t)) {  //sayi mi degil i bakar sayi ise 0 dondurur
+  if (isnan(t)) {  
     Serial.println("Failed to read from DHT sensor!");
     return "--";
   } else {
@@ -33,7 +25,6 @@ String readDHTTemperature() {
 }
 
 String readDHTHumidity() {
-  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   float h = dht.readHumidity();
   if (isnan(h)) {
     Serial.println("Failed to read from DHT sensor!");
@@ -106,9 +97,7 @@ setInterval(function ( ) {
 </script>
 </html>)rawliteral";
 
-// Replaces placeholder with DHT values
 String processor(const String& var) {
-  //Serial.println(var);
   if (var == "TEMPERATURE") {
     return readDHTTemperature();
   } else if (var == "HUMIDITY") {
@@ -118,22 +107,18 @@ String processor(const String& var) {
 }
 dht.computeHeatIndex();
 void setup() {
-  // Serial port for debugging purposes
   Serial.begin(115200);
 
   dht.begin();
 
-  // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
 
-  // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
 
-  // Route for root / web page
   server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
     request->send_P(200, "text/html", index_html, processor);
   });
@@ -144,7 +129,6 @@ void setup() {
     request->send_P(200, "text/plain", readDHTHumidity().c_str());
   });
 
-  // Start server
   server.begin();
 }
 
